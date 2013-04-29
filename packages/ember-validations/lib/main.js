@@ -1,3 +1,5 @@
+require("ember-validations/core");
+
 require("ember-validations/error");
 require("ember-validations/errors");
 

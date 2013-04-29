@@ -80,6 +80,50 @@ Ember.Validations = Ember.Mixin.create(/**@scope Ember.Validations.prototype */{
     if (get(this, 'validationErrors') === undefined) {
       set(this, 'validationErrors', Ember.ValidationErrors.create());
     }
+
+    this._setupAutoValidateObserves();
+  },
+
+  /** @private */
+  _setupAutoValidateObserves: function() {
+    var validations = this.get('validations');
+    var validateOnValueChange = this.validateOnValueChange;
+    var validateOnFocusOut = this.validateOnFocusOut;
+    var observerKey;
+
+    for (property in validations) {
+      if (validateOnValueChange) {
+        observerKey = '_observer' + property + '_value_change';
+        if (!this[observerKey]) {
+          this[observerKey] = Ember.addObserver(this, property, this, '_onValueChangeValidateAttribute');
+        }
+      }
+
+      if (validateOnFocusOut) {
+        var key = property + 'shouldValidate';
+        observerKey = '_observer' + property + '_focus_out';
+        if (!this[observerKey]) {
+          this[observerKey] = Ember.addObserver(this, key, this, '_onFocusOutValidateAttribute');
+        }
+      }
+    }
+  }.observes('validations'),
+
+  /** @private */
+  _onValueChangeValidateAttribute: function(target, property) {
+    var shouldValidatePath = property + 'shouldValidate';
+
+    if (this.get(shouldValidatePath)) {
+      this.validateProperty(property);
+    }
+  },
+
+  _onFocusOutValidateAttribute: function(target, shouldValidatePath) {
+    var property = shouldValidatePath.replace('shouldValidate', '');
+
+    if (this.get(shouldValidatePath)) {
+      this.validateProperty(property);
+    }
   },
 
   /**
