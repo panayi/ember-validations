@@ -113,7 +113,7 @@ Ember.Validations = Ember.Mixin.create(/**@scope Ember.Validations.prototype */{
   _onValueChangeValidateAttribute: function(target, property) {
     var shouldValidatePath = property + 'shouldValidate';
 
-    if (this.get(shouldValidatePath)) {
+    if (this.get(shouldValidatePath) || this._didValidateAllOnce) {
       this.validateProperty(property);
     }
   },
@@ -121,7 +121,7 @@ Ember.Validations = Ember.Mixin.create(/**@scope Ember.Validations.prototype */{
   _onFocusOutValidateAttribute: function(target, shouldValidatePath) {
     var property = shouldValidatePath.replace('shouldValidate', '');
 
-    if (this.get(shouldValidatePath)) {
+    if (this.get(shouldValidatePath) || this._didValidateAllOnce) {
       this.validateProperty(property);
     }
   },
@@ -133,6 +133,8 @@ Ember.Validations = Ember.Mixin.create(/**@scope Ember.Validations.prototype */{
      @returns {Boolean} true if the object if valid
   */
   validate: function() {
+    this._didValidateAllOnce = true;
+
     var validations = get(this, 'validations'),
         errors = get(this, 'validationErrors');
 
